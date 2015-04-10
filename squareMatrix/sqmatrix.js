@@ -63,7 +63,7 @@ SqMatrix.prototype.makeCheckerBoard = function(){
 }
 
 SqMatrix.prototype.and = function(B){
-	if (! this.L === B.L) throw new Error("matrices must be of the same size");
+	if ( this.L !== B.L) throw new Error("matrices must be of the same size");
 	var C = new SqMatrix(this.N);
 	for(var z = 0; z < this.L; z++){
 		C.matrix[z] = this.matrix[z] && B.matrix[z];
@@ -75,13 +75,20 @@ SqMatrix.prototype.and = function(B){
  * match is the same as inv xor
  */
 SqMatrix.prototype.match = function(B){
-	if (! this.L === B.L) throw new Error("matrices must be of the same size");
+	if ( this.L !== B.L) throw new Error("matrices must be of the same size");
 	var C = new SqMatrix(this.N);
 	for(var z = 0; z < this.L; z++){
 		//C.matrix[z] = !((!this.matrix[z] && B.matrix[z]) || (this.matrix[z] && !B.matrix[z]));
 		C.matrix[z] = this.matrix[z] === B.matrix[z];
 	}
 	return C;
+}
+
+SqMatrix.prototype.setWithArray(arr){
+	if (this.L !== arr.length) throw new Error("data array length must match the matrix");
+	for (var z; z < this.L; z++){
+		this.matrix[z] = arr[z]|0;
+	}
 }
 
 var m = new SqMatrix(4);
