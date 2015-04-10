@@ -23,6 +23,9 @@ console.time('elapsed');
 var N = 0,
 	board = null,
 	mat = null,
+	R = null,
+	partial = 0,
+	move= null,
 	mati = null;
 
 
@@ -33,35 +36,83 @@ for (var ca = 1; ca <= cases; ca++) {
 	map = []
 	X = [];
 	invX = [];
+	R = [];
+	partial = 0;
+	moves = null;
+
+
 	
 	for (var y = 0; y < N; y++) {
 		board.push(input.shift().split('').map(function(el){
-			//map.push(!!+el);
 			return !!+el;
 		}));
-
-
 		X.push(board[y]);
-		console.log(X[y]);
-		X[y].forEach(function(el, index, arr){
-			arr[index] = !!(index % 2) && el;
-		});
+		R.push(new Array(N));
+
+		if ( board[y].reduce(count) != N/2 ) {
+			moves = "IMPOSSIBLE";
+			break;
+		}
+
 	}
 
-	console.log(X);
+	// check if valid
+
+	if (!moves){
+		for (var y = 0; y < N; y++) {
+			var c = 0;
+			for (var x =0; x < N; x++){
+				if (X[x][y]) c++;
+			}
+			if (c != N/2){
+				moves = "IMPOSSIBLE";
+				break;
+			}
+		}
+	}
+
+	if (!moves){
+		for (var y = 0; y < N; y++) {
+			X[y].forEach(function(el, x, arr){
+				//arr[x] = !!((x+y+2) % 2) && el;
+				arr[x] = !!((x+y+1) % 2);
+				arr[x] = !((arr[x] && !el) || (!arr[x] && el));
+			});
+		}
+
+		for (var x = 0; x < N; x++){
+			for (var y = 0; y < N; y++){
+				R[x][y] = R [y][x] = X[x][y] && X[y][x];
+			}
+		}
+
+		R.forEach(function(row){
+			partial += row.reduce(count);
+		});
 
 
+		if (partial % N > 0) {
+			moves = 'IMPOSSIBLE';
+		} else {
+			moves = partial / N;
+		}
+	}
+
+
+	console.log(moves);
 
 	// mask it
 
 
-	//console.log(board);
+	output += "Case #"+ca+": "+moves+'\n';
 
 
 }
 
 
-
+function count(pv, cv, i, a){
+	return pv + cv;
+}
 
 
 // closeup
