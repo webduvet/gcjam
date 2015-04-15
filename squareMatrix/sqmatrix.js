@@ -29,7 +29,7 @@ SqMatrix.prototype.inv = function(){
  * fold the matrix along diagonal and perform AND
  * operation ans store the result in both end
  */
-SqMatrix.prototype.foldAnd = function(){
+SqMatrix.prototype.foldAND = function(){
 	var val = 0;
 	for (var y = 0; y < this.N-1 ; y++){
 		for (var x = y+1; x < this.N; x++ ) {
@@ -44,7 +44,7 @@ SqMatrix.prototype.foldAnd = function(){
  * fold the matrix along diagonal and perform inverse XOR
  * operation ans store the result in both end
  */
-SqMatrix.prototype.foldXorInv = function(){
+SqMatrix.prototype.foldMatch = function(){
 	var val = 0;
 	for (var y = 0; y < this.N-1 ; y++){
 		for (var x = y+1; x < this.N; x++ ) {
@@ -69,7 +69,7 @@ SqMatrix.prototype.increment = function(){
  * create checkboard matrix 0/1
  */
 SqMatrix.prototype.makeCheckerBoard = function(){
-	var val = true;
+	var val = false;
 
 	if (this.N % 2) {
 		for (var i = 0; i < this.L; i++){
@@ -84,13 +84,74 @@ SqMatrix.prototype.makeCheckerBoard = function(){
 	}
 };
 
+Object.defineProperties(SqMatrix,{
+	"AND":{
+		enumerable: false,
+		configurable: false,
+		writable: false,
+		value: function(A,B){
+			if ( A.length !== B.length) throw new Error("matrices must be of the same size");
+			//var C = new SqMatrix(A.N);
+			var C = new Uint8Array(A.length);
+			for(var z = 0; z < A.length; z++){
+				C[z] = A[z] && B[z];
+			}
+			return C;
+		}
+	},
+	"OR":{
+		enumerable: false,
+		configurable: false,
+		writable: false,
+		value: function(A,B){
+			if ( A.length !== B.length) throw new Error("matrices must be of the same size");
+			//var C = new SqMatrix(A.N);
+			var C = new Uint8Array(A.length);
+			for(var z = 0; z < A.length; z++){
+				C[z] = A[z] || B[z];
+			}
+			return C;
+		}
+	},
+	"XOR":{
+		enumerable: false,
+		configurable: false,
+		writable: false,
+		value: function(A,B){
+			if ( A.length !== B.length) throw new Error("matrices must be of the same size");
+			//var C = new SqMatrix(A.N);
+			var C = new Uint8Array(A.length);
+			for(var z = 0; z < A.length; z++){
+				C[z] = (!A[z] && B[z]) || (A[z] && !B[z]);
+			}
+			return C;
+		}
+	}
+});
+
+
+/**
+ * create new matrix as result of logical XOR on two given matrices
+ *
+ * @param {SqMatrix} instance of N by N matrix
+ * @resturns {SqMatrix} instance of new matrix
+ */
+SqMatrix.prototype.XORme = function(B){
+	if ( this.L !== B.L) throw new Error("matrices must be of the same size");
+	var C = new SqMatrix(this.N);
+	for(var z = 0; z < this.L; z++){
+		C.matrix[z] = (!this.matrix[z] && B.matrix[z]) || (this.matrix[z] && !B.matrix[z]);
+	}
+	return C;
+};
+
 /**
  * create new matrix as result of logical AND on two given matrices
  *
  * @param {SqMatrix} instance of N by N matrix
  * @resturns {SqMatrix} instance of new matrix
  */
-SqMatrix.prototype.AND = function(B){
+SqMatrix.prototype.ANDme = function(B){
 	if ( this.L !== B.L) throw new Error("matrices must be of the same size");
 	var C = new SqMatrix(this.N);
 	for(var z = 0; z < this.L; z++){
@@ -123,5 +184,90 @@ SqMatrix.prototype.setWithArray = function(arr){
 		this.matrix[z] = arr[z]|0;
 	}
 };
+
+/**
+ * get a Nth row from the matrix
+ * @param {int}
+ * @returns {Array} new Array with copied values of existing
+ */
+SqMatrix.prototype.getRow = function(r,n){
+	var row = new Uint8Array(this.N);
+
+	for (var i = 0; i < this.N; i++) {
+		row[i] = this.matrix[i + r*this.N];
+	}
+	return row;
+}
+/**
+ * get a Nth column from the matrix
+ * @param {int}
+ * @returns {Array} new Array with copied values of existing
+ */
+SqMatrix.prototype.getCol = function(c,n){
+	var col = new Uint8Array(this.N);
+
+	for (var i = 0; i < this.N; i++) {
+		col[i] = this.matrix[c + i*this.N];
+	}
+	return col;
+}
+
+/**
+ * get a Nth row from the matrix
+ * @param {int}
+ * @returns {Array} new Array with copied values of existing
+ */
+SqMatrix.prototype.rowAsArray = function(r){
+	var row = new Array(this.N);
+
+	for (var i = 0; i < this.N; i++) {
+		row[i] = this.matrix[i + r*this.N];
+	}
+	return row;
+}
+/**
+ * get a Nth column from the matrix
+ * @param {int}
+ * @returns {Array} new Array with copied values of existing
+ */
+SqMatrix.prototype.colAsArray = function(c){
+	var col = new Array(this.N);
+
+	for (var i = 0; i < this.N; i++) {
+		col[i] = this.matrix[c + i*this.N];
+	}
+	return col;
+}
+
+/**
+ * returns the sum of all values in the matrix
+ *
+ * @returns {int} 
+ */
+SqMatrix.prototype.SUM = function(){
+	var sum = 0;
+	for (var n = 0; n < this.L; n++){
+		sum += this.matrix[n];
+	}
+	return sum;
+	//return this.matrix.reduce(function(p,c){return p+c;});
+}
+
+/**
+ * sums all columns and the result stores in new array
+ * it is regular ES5 Array so we can take advantage array methods
+ * @returns {Array}
+ */
+SqMatrix.prototype.sums = function(){
+	var sumsRows = new Uint8Array(this.N),
+		sumsCols = new Uint8Array(this.N);
+	for (var r = 0; r < this.N; r++) {
+		for (var c = 0; c < this.N; c++){
+			sumsRows[r] += this.matrix[c + r*this.N];
+			sumsCols[c] += this.matrix[c + r*this.N];
+		}
+	}
+	return [sumsCols, sumsRows];
+}
 
 module.exports = SqMatrix;
