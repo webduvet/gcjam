@@ -18,13 +18,15 @@ var cases = input.shift();
 console.time('elapsed');
 
 
-var N = 0, A = 0, B = 0, split = 0, rem = 0, days = 0, exit = false;
+var N = 0, A = 0, B = 0, split = 0, rem = 0, days = 0, exit = false, splitX = 0, splitY = 0;
 
 for (var ca = 1; ca <= cases; ca++) {
 	N = +input.shift();
 	A = +input.shift();
 	B = +input.shift();
 	days = 0;
+	splitX = 0;
+	splitY = 0;
 
 
 	var k = B / A,
@@ -34,7 +36,7 @@ for (var ca = 1; ca <= cases; ca++) {
 	if (N < 2) {
 		days = 0;
 	}
-	else if ( N < 4) {
+	else if ( N < B) {
 		days = (N-1) * A;
 	}
 	else {
@@ -42,22 +44,22 @@ for (var ca = 1; ca <= cases; ca++) {
 
 			//split = Math.floor(N/2) + Math.round(k/2);
 
-			var diff = (N-kf)/2;
+			var diff = (N-k)/2;
 
 
-			if (N%2) split = N - Math.ceil((N-kf) / 2);
-			else split = N - Math.floor((N-kf) / 2);
-			console.log('split', split, 'kf', kf);
-
-
-
-			if ((split-1) > kf){
-				N = split;
-				days += A;
-				exit = false;
-			} else {
-				days += (split) * A;
+			splitX = diff; //Math.round(diff);
+			splitY = diff + k; //Math.round(diff + k);
+			if ( (splitX + k) > (splitY + k) ) {
+				splitX -= 1;
+				splitY += 1;
+			}
+			if (splitX < k) {
 				exit = true;
+				days += Math.round((splitY) * A);
+			} else {
+				exit = false;
+				N = Math.splitY;
+				days += A;
 			}
 
 		} while(!exit);
