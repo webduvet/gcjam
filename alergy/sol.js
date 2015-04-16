@@ -42,22 +42,24 @@ for (var ca = 1; ca <= cases; ca++) {
 
 			//split = Math.floor(N/2) + Math.round(k/2);
 
-			var diff = (N-kf)/2;
+			var halfX = Math.floor(N/2), halfY = N - halfX;
 
 
-			if (N%2) split = N - Math.ceil((N-kf) / 2);
-			else split = N - Math.floor((N-kf) / 2);
-			console.log('split', split, 'kf', kf);
+			while ((halfX + B) > (halfY + A)) {
+				halfX -=1;
+				halfY +=1;
+			}
 
+			// check if the rest can be split or not
 
-
-			if ((split-1) > kf){
-				N = split;
+			if (halfY < 4) {
+				days += A;
+				days += A * (halfY-1);
+				exit = true;
+			} else {
 				days += A;
 				exit = false;
-			} else {
-				days += (split) * A;
-				exit = true;
+				N = halfY;
 			}
 
 		} while(!exit);
