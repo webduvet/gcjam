@@ -21,17 +21,17 @@ Fib.prototype.maxJump = function(L){
         i++;
 		old = jump;
 		jump = this.get(i);
-		
     }
     return {
 		dist: old,
 		n: i-1
 	};
 };
+
 Fib.prototype.findJump = function(Rest, pass){
-    var max = this.maxJump(Rest.byteLength);
+	var max = this.maxJump(Rest.byteLength);
 	pass++;
-    if (max.dist === Rest.byteLength) {
+	if (max.dist === Rest.byteLength) {
         if (sol > pass || sol === -1) {
 			sol = pass;
 		}
@@ -39,24 +39,25 @@ Fib.prototype.findJump = function(Rest, pass){
     }
     for (var i = max.n|0; i > 1; i--){
         if ( Rest.getUint8( this.get(i)-1 ) ){
-			if (sol > pass || sol === -1) {
-				// TODO perhaps this should be done as buffer prepresentation rather than new array
-				// this is the biggest performance hit
+			// TODO count stones for each stretch
+			//
+			if ( pass < stones && (sol > pass || sol === -1) ) {
 				var deeperView = new DataView( Rest.buffer, Rest.byteOffset + this.get(i));
 				// process.stdout.write('.');
+				iters++;
 				this.findJump(deeperView, pass);
 			} else return;
         }
     }
 }
 
-var f = null;
+var f = null, stones = 0, iters = 0;
 
 function solution(A) {
 
 	console.time('boot');
 
-	console.log(A.reduce(function(p,n){return p + n;}));
+	stones = A.reduce(function(p,n){return p + n;});
 	//add bank
 	Array.prototype.push.call(A, 1);
 
@@ -103,3 +104,5 @@ for (var i = 0; i < big.length; i++){
 }
 
 console.log( solution(big) );
+console.log("stones in river: ", stones);
+console.log("iterations run: ", iters);
