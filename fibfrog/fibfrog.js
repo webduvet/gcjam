@@ -29,17 +29,22 @@ Fib.prototype.maxJump = function(L){
 	};
 };
 Fib.prototype.findJump = function(Rest, pass){
-    var max = this.maxJump(Rest.length);
-    if (max.dist === Rest.length) {
-        if (sol > pass + 1 || sol === -1) {
-			sol = pass + 1;
+    var max = this.maxJump(Rest.byteLength);
+	pass++;
+    if (max.dist === Rest.byteLength) {
+        if (sol > pass || sol === -1) {
+			sol = pass;
 		}
 		return;
     }
-    for (var i = max.n; i > 1; i--){
-        if ( Rest[this.get(i)-1 ] === 1 ){
-			if (sol > pass + 1 || sol === -1) {
-				this.findJump(Rest.slice( this.get(i), Rest.length), pass+1);
+    for (var i = max.n|0; i > 1; i--){
+        if ( Rest.getUint8( this.get(i)-1 ) ){
+			if (sol > pass || sol === -1) {
+				// TODO perhaps this should be done as buffer prepresentation rather than new array
+				// this is the biggest performance hit
+				var deeperView = new DataView( Rest.buffer, Rest.byteOffset + this.get(i));
+				// process.stdout.write('.');
+				this.findJump(deeperView, pass);
 			} else return;
         }
     }
@@ -48,12 +53,27 @@ Fib.prototype.findJump = function(Rest, pass){
 var f = null;
 
 function solution(A) {
-    
+
+	console.time('boot');
+
+	console.log(A.reduce(function(p,n){return p + n;}));
 	//add bank
 	Array.prototype.push.call(A, 1);
+
+	var buffer = new ArrayBuffer(A.length);
+	var view = new DataView(buffer);
+	for (var x = 0; x < A.length; x++){
+		if( A[x] ) view.setUint8(x, 1);
+		else view.setUint8(x, 0);
+	}
 	var f = new Fib(A.length);
 
-    f.findJump(A, 0);
+	console.timeEnd('boot');
+
+	console.time('time');
+    f.findJump(view, 0);
+	console.timeEnd('time');
+
 	return sol;
 }
 
@@ -76,12 +96,10 @@ var a = [0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0];
 var a2 = [0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0];
 
 // var big = new Uint8Array(10);
-var big = new Array(10000);
+var big = new Array(100000);
 
 for (var i = 0; i < big.length; i++){
 	big[i] = Math.round(Math.random()*Math.random()) | 0;
 }
 
-console.time('time');
 console.log( solution(big) );
-console.timeEnd('time');
