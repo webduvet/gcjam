@@ -57,6 +57,8 @@ function solution(A) {
 
 	console.time('boot');
 
+	if (A.length === 0 ) return -1;
+
 	stones = A.reduce(function(p,n){return p + n;});
 	//add bank
 	Array.prototype.push.call(A, 1);
@@ -87,14 +89,6 @@ function fib(N) {
 
 assert.equal(fib(5), 5, "fib 5 expect 5");
 
-
-var aa = [0,0, 0, 1,1, 0, 1, 0, 0, 0, 1, 1,0, 0, 1,0, 0, 0, 1, 1,0, 0, 0, 0];
-
-//console.log( solution(a) );
-
-var a = [0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0];
-
-var a2 = [0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0];
 
 // var big = new Uint8Array(10);
 var big = new Array(100000);
